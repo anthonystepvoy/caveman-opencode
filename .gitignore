@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env.local
+**/.DS_Store
+
+.opencode/clipboard-images/
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock
