@@ -4,7 +4,7 @@ description: >
   Compress natural language memory files (CLAUDE.md, todos, preferences) into caveman format
   to save input tokens. Preserves all technical substance, code, URLs, and structure.
   Compressed version overwrites the original file. Human-readable backup saved as FILE.original.md.
-  Trigger: /caveman:compress <filepath> or "compress memory file"
+  Trigger: /caveman-compress <filepath> or "compress memory file"
 ---
 
 # Caveman Compress
@@ -15,7 +15,7 @@ Compress natural language files (CLAUDE.md, todos, preferences) into caveman-spe
 
 ## Trigger
 
-`/caveman:compress <filepath>` or when user asks to compress a memory file.
+`/caveman-compress <filepath>` or when user asks to compress a memory file.
 
 ## Process
 

@@ -25,5 +25,6 @@ This repository should stay focused on OpenCode packaging for Caveman-style ters
 - The change is OpenCode-specific or clearly useful for OpenCode users.
 - README and command docs stay accurate.
 - Install and uninstall behavior is preserved.
+- `python scripts/validate-package.py` passes locally.
 - Upstream Caveman attribution remains intact.
 - No generated caches, `node_modules`, or `__pycache__` files are committed.

@@ -71,6 +71,16 @@ chmod +x ./install-opencode.sh
 
 Restart OpenCode after installing.
 
+## Validate
+
+Before publishing a release, run the package validation script:
+
+```bash
+python scripts/validate-package.py
+```
+
+It checks OpenCode config, command frontmatter, skill metadata, installer coverage, and Python script syntax.
+
 ## Commands
 
 Enable Caveman mode:
