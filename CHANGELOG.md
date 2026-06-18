@@ -5,6 +5,7 @@
 - Added package validation script for OpenCode config, command metadata, skill metadata, installer coverage, and Python syntax.
 - Added GitHub Actions workflow to run package validation on push and pull requests.
 - Standardized compression command docs on `/caveman-compress <filepath>`.
+- Added one-line remote install and uninstall support for Windows, macOS, and Linux.
 
 ## 0.1.0
 

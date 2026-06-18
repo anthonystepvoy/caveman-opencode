@@ -1,14 +1,52 @@
 #!/usr/bin/env sh
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || pwd)
 source_opencode="$repo/.opencode"
+cleanup_dir=""
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 skills_dir="$config_dir/skills"
 commands_dir="$config_dir/commands"
 config_file="$config_dir/opencode.json"
 agents_file="$config_dir/AGENTS.caveman.md"
 skills="caveman caveman-commit caveman-review caveman-help caveman-compress"
+
+cleanup() {
+  if [ -n "$cleanup_dir" ] && [ -d "$cleanup_dir" ]; then
+    rm -rf "$cleanup_dir"
+  fi
+}
+trap cleanup EXIT
+
+if [ ! -f "$source_opencode/AGENTS.md" ]; then
+  archive_url="${CAVEMAN_OPENCODE_ARCHIVE_URL:-https://github.com/anthonystepvoy/caveman-opencode/archive/refs/heads/main.tar.gz}"
+  cleanup_dir="${TMPDIR:-/tmp}/caveman-opencode-$$"
+  archive_file="$cleanup_dir/source.tar.gz"
+  mkdir -p "$cleanup_dir"
+
+  echo "Downloading Caveman for OpenCode from $archive_url"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$archive_url" -o "$archive_file"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO "$archive_file" "$archive_url"
+  else
+    echo "ERROR: curl or wget is required for remote install" >&2
+    exit 1
+  fi
+
+  tar -xzf "$archive_file" -C "$cleanup_dir"
+  source_dir=$(find "$cleanup_dir" -mindepth 1 -maxdepth 1 -type d | head -n 1)
+  if [ -z "$source_dir" ]; then
+    echo "ERROR: downloaded archive did not contain a source directory" >&2
+    exit 1
+  fi
+
+  source_opencode="$source_dir/.opencode"
+  if [ ! -f "$source_opencode/AGENTS.md" ]; then
+    echo "ERROR: downloaded archive did not contain .opencode/AGENTS.md" >&2
+    exit 1
+  fi
+fi
 
 mkdir -p "$skills_dir" "$commands_dir"
 

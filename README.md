@@ -49,7 +49,21 @@ It does not make the model smarter and it should not be used where compression c
 
 ## Install
 
-Clone this repo:
+One-line install:
+
+Windows:
+
+```powershell
+irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.ps1 | iex
+```
+
+macOS/Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.sh | sh
+```
+
+Or clone this repo:
 
 ```bash
 git clone https://github.com/anthonystepvoy/caveman-opencode.git
@@ -144,10 +158,22 @@ The repo includes `opencode.json` for local testing. If you open OpenCode inside
 Windows:
 
 ```powershell
+irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/uninstall-opencode.ps1 | iex
+```
+
+or, from a clone:
+
+```powershell
 powershell -ExecutionPolicy Bypass -File .\uninstall-opencode.ps1
 ```
 
 macOS/Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/uninstall-opencode.sh | sh
+```
+
+or, from a clone:
 
 ```bash
 chmod +x ./uninstall-opencode.sh
