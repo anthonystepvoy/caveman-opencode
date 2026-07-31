@@ -14,6 +14,15 @@ $skillsDir = Join-Path $configDir "skills"
 $commandsDir = Join-Path $configDir "commands"
 $configFile = Join-Path $configDir "opencode.json"
 $agentsFile = Join-Path $configDir "AGENTS.caveman.md"
+$defaultLevel = $env:CAVEMAN_OPENCODE_DEFAULT_LEVEL
+if ([string]::IsNullOrWhiteSpace($defaultLevel)) {
+  $defaultLevel = "full"
+}
+
+$allowedDefaultLevels = @("lite", "full", "ultra", "wenyan", "wenyan-lite", "wenyan-ultra")
+if ($allowedDefaultLevels -notcontains $defaultLevel) {
+  throw "CAVEMAN_OPENCODE_DEFAULT_LEVEL must be one of: $($allowedDefaultLevels -join ', ')"
+}
 
 $skills = @(
   "caveman",
@@ -67,7 +76,9 @@ foreach ($skill in $skills) {
 }
 
 Copy-Item -Force (Join-Path $sourceOpenCode "commands\*.md") -Destination $commandsDir
-Copy-Item -Force -LiteralPath (Join-Path $sourceOpenCode "AGENTS.md") -Destination $agentsFile
+$agentsText = Get-Content -LiteralPath (Join-Path $sourceOpenCode "AGENTS.md") -Raw -Encoding UTF8
+$agentsText = $agentsText -replace "Default mode: full\.", "Default mode: $defaultLevel."
+$agentsText | Set-Content -LiteralPath $agentsFile -Encoding UTF8
 
 if (Test-Path -LiteralPath $configFile) {
   $config = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -98,4 +109,5 @@ if ($tempDir -and (Test-Path -LiteralPath $tempDir)) {
 }
 
 Write-Host "Installed Caveman for OpenCode to $configDir"
+Write-Host "Default Caveman intensity: $defaultLevel"
 Write-Host "Restart OpenCode, then use /caveman, /caveman-help, /caveman-review, /caveman-commit, or /caveman-compress."

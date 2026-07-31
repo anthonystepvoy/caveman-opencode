@@ -85,6 +85,22 @@ chmod +x ./install-opencode.sh
 
 Restart OpenCode after installing.
 
+The one-line installer also activates Caveman globally by adding `AGENTS.caveman.md` to your OpenCode `instructions`. The default intensity is `full`, so no extra OpenCode config is needed after install.
+
+To install with `ultra` as the default intensity:
+
+Windows:
+
+```powershell
+$env:CAVEMAN_OPENCODE_DEFAULT_LEVEL = "ultra"; irm https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.ps1 | iex
+```
+
+macOS/Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anthonystepvoy/caveman-opencode/main/install-opencode.sh | CAVEMAN_OPENCODE_DEFAULT_LEVEL=ultra sh
+```
+
 ## Validate
 
 Before publishing a release, run the package validation script:

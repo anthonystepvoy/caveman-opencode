@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Documented global default activation after install.
+- Added `CAVEMAN_OPENCODE_DEFAULT_LEVEL` install-time override for `lite`, `full`, `ultra`, `wenyan`, `wenyan-lite`, and `wenyan-ultra`.
+
 ## 0.2.0
 
 - Added package validation script for OpenCode config, command metadata, skill metadata, installer coverage, and Python syntax.

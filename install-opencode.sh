@@ -10,6 +10,15 @@ commands_dir="$config_dir/commands"
 config_file="$config_dir/opencode.json"
 agents_file="$config_dir/AGENTS.caveman.md"
 skills="caveman caveman-commit caveman-review caveman-help caveman-compress"
+default_level="${CAVEMAN_OPENCODE_DEFAULT_LEVEL:-full}"
+
+case "$default_level" in
+  lite|full|ultra|wenyan|wenyan-lite|wenyan-ultra) ;;
+  *)
+    echo "ERROR: CAVEMAN_OPENCODE_DEFAULT_LEVEL must be one of: lite, full, ultra, wenyan, wenyan-lite, wenyan-ultra" >&2
+    exit 1
+    ;;
+esac
 
 cleanup() {
   if [ -n "$cleanup_dir" ] && [ -d "$cleanup_dir" ]; then
@@ -56,7 +65,7 @@ for skill in $skills; do
 done
 
 cp "$source_opencode"/commands/*.md "$commands_dir/"
-cp "$source_opencode/AGENTS.md" "$agents_file"
+sed "s/^Default mode: full\./Default mode: $default_level./" "$source_opencode/AGENTS.md" > "$agents_file"
 
 node - "$config_file" "$agents_file" <<'NODE'
 const fs = require("fs")
@@ -86,4 +95,5 @@ fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + "\n")
 NODE
 
 echo "Installed Caveman for OpenCode to $config_dir"
+echo "Default Caveman intensity: $default_level"
 echo "Restart OpenCode, then use /caveman, /caveman-help, /caveman-review, /caveman-commit, or /caveman-compress."
