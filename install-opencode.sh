@@ -75,7 +75,12 @@ const skills = ["caveman", "caveman-commit", "caveman-review", "caveman-help", "
 let config = {}
 
 if (fs.existsSync(configFile)) {
-  config = JSON.parse(fs.readFileSync(configFile, "utf8"))
+  const content = fs.readFileSync(configFile, "utf8")
+  try {
+    config = JSON.parse(content)
+  } catch (e) {
+    config = JSON.parse(content.replace(/,\s*([\]}])/g, "$1"))
+  }
 }
 
 config.instructions = Array.isArray(config.instructions) ? config.instructions : []

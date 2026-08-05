@@ -33,7 +33,12 @@ if (Test-Path -LiteralPath $agentsFile) {
 }
 
 if (Test-Path -LiteralPath $configFile) {
-  $config = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8 | ConvertFrom-Json
+  $content = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8
+  try {
+    $config = $content | ConvertFrom-Json
+  } catch {
+    $config = ($content -replace ',\s*([\]}])', '$1') | ConvertFrom-Json
+  }
   if ($config.PSObject.Properties.Name -contains "instructions") {
     $config.instructions = @(@($config.instructions) | Where-Object { $_ -ne $agentsFile })
   }

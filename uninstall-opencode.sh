@@ -24,7 +24,13 @@ const fs = require("fs")
 
 const [configFile, agentsFile] = process.argv.slice(2)
 const skills = ["caveman", "caveman-commit", "caveman-review", "caveman-help", "caveman-compress"]
-const config = JSON.parse(fs.readFileSync(configFile, "utf8"))
+let config = {}
+const content = fs.readFileSync(configFile, "utf8")
+try {
+  config = JSON.parse(content)
+} catch (e) {
+  config = JSON.parse(content.replace(/,\s*([\]}])/g, "$1"))
+}
 
 if (Array.isArray(config.instructions)) {
   config.instructions = config.instructions.filter((item) => item !== agentsFile)

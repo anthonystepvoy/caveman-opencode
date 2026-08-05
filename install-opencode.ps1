@@ -81,7 +81,12 @@ $agentsText = $agentsText -replace "Default mode: full\.", "Default mode: $defau
 $agentsText | Set-Content -LiteralPath $agentsFile -Encoding UTF8
 
 if (Test-Path -LiteralPath $configFile) {
-  $config = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8 | ConvertFrom-Json
+  $content = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8
+  try {
+    $config = $content | ConvertFrom-Json
+  } catch {
+    $config = ($content -replace ',\s*([\]}])', '$1') | ConvertFrom-Json
+  }
 } else {
   $config = [pscustomobject]@{}
 }
