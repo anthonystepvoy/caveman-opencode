@@ -6,6 +6,8 @@
 - Added `CAVEMAN_OPENCODE_DEFAULT_LEVEL` install-time override for `lite`, `full`, `ultra`, `wenyan`, `wenyan-lite`, and `wenyan-ultra`.
 - Accepted trailing commas in existing OpenCode configuration without changing comma-like text inside JSON strings.
 - Added functional install/uninstall tests for POSIX and Windows PowerShell environments.
+- Replaced the Windows `Expand-Archive` dependency with .NET ZIP extraction for hosts where `Microsoft.PowerShell.Archive` cannot load.
+- Enforced LF endings for shell scripts and workflow files across Windows and POSIX checkouts.
 
 ## 0.2.0
 

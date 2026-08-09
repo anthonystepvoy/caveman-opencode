@@ -92,6 +92,11 @@ function ConvertFrom-OpenCodeJson([string]$Content) {
   }
 }
 
+function Expand-ZipArchive([string]$Path, [string]$DestinationPath) {
+  Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction Stop
+  [System.IO.Compression.ZipFile]::ExtractToDirectory($Path, $DestinationPath)
+}
+
 if (-not (Test-Path -LiteralPath (Join-Path $sourceOpenCode "AGENTS.md"))) {
   $archiveUrl = $env:CAVEMAN_OPENCODE_ARCHIVE_URL
   if ([string]::IsNullOrWhiteSpace($archiveUrl)) {
@@ -103,8 +108,8 @@ if (-not (Test-Path -LiteralPath (Join-Path $sourceOpenCode "AGENTS.md"))) {
   New-Item -ItemType Directory -Force $tempDir | Out-Null
 
   Write-Host "Downloading Caveman for OpenCode from $archiveUrl"
-  Invoke-WebRequest -Uri $archiveUrl -OutFile $zipPath
-  Expand-Archive -LiteralPath $zipPath -DestinationPath $tempDir -Force
+  Invoke-WebRequest -UseBasicParsing -Uri $archiveUrl -OutFile $zipPath
+  Expand-ZipArchive -Path $zipPath -DestinationPath $tempDir
 
   $sourceDir = Get-ChildItem -LiteralPath $tempDir -Directory | Select-Object -First 1
   if (-not $sourceDir) {
