@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   package:
     name: Package validation
@@ -11,12 +14,35 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
       - name: Validate package
         run: python scripts/validate-package.py
+
+  posix-installers:
+    name: POSIX installers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Test install and uninstall
+        run: sh scripts/test-installers.sh
+
+  powershell-installers:
+    name: Windows PowerShell installers
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Test install and uninstall
+        shell: powershell
+        run: .\scripts\test-installers.ps1

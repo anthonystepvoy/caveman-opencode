@@ -14,6 +14,60 @@ $skills = @(
   "caveman-compress"
 )
 
+function Remove-JsonTrailingCommas([string]$Content) {
+  $result = [System.Text.StringBuilder]::new($Content.Length)
+  $inString = $false
+  $escaped = $false
+
+  for ($index = 0; $index -lt $Content.Length; $index++) {
+    $character = $Content[$index]
+
+    if ($inString) {
+      [void]$result.Append($character)
+      if ($escaped) {
+        $escaped = $false
+      } elseif ($character -eq '\') {
+        $escaped = $true
+      } elseif ($character -eq '"') {
+        $inString = $false
+      }
+      continue
+    }
+
+    if ($character -eq '"') {
+      $inString = $true
+      [void]$result.Append($character)
+      continue
+    }
+
+    if ($character -eq ',') {
+      $next = $index + 1
+      while ($next -lt $Content.Length -and [char]::IsWhiteSpace($Content[$next])) {
+        $next++
+      }
+      if ($next -lt $Content.Length -and ($Content[$next] -eq '}' -or $Content[$next] -eq ']')) {
+        continue
+      }
+    }
+
+    [void]$result.Append($character)
+  }
+
+  return $result.ToString()
+}
+
+function ConvertFrom-OpenCodeJson([string]$Content) {
+  try {
+    return $Content | ConvertFrom-Json
+  } catch {
+    $normalized = Remove-JsonTrailingCommas $Content
+    if ($normalized -eq $Content) {
+      throw
+    }
+    return $normalized | ConvertFrom-Json
+  }
+}
+
 foreach ($skill in $skills) {
   $skillPath = Join-Path $skillsDir $skill
   if (Test-Path -LiteralPath $skillPath) {
@@ -33,7 +87,8 @@ if (Test-Path -LiteralPath $agentsFile) {
 }
 
 if (Test-Path -LiteralPath $configFile) {
-  $config = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8 | ConvertFrom-Json
+  $content = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8
+  $config = ConvertFrom-OpenCodeJson $content
   if ($config.PSObject.Properties.Name -contains "instructions") {
     $config.instructions = @(@($config.instructions) | Where-Object { $_ -ne $agentsFile })
   }
