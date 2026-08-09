@@ -74,13 +74,63 @@ const [configFile, agentsFile] = process.argv.slice(2)
 const skills = ["caveman", "caveman-commit", "caveman-review", "caveman-help", "caveman-compress"]
 let config = {}
 
+function stripTrailingCommas(content) {
+  let result = ""
+  let inString = false
+  let escaped = false
+
+  for (let index = 0; index < content.length; index += 1) {
+    const character = content[index]
+
+    if (inString) {
+      result += character
+      if (escaped) {
+        escaped = false
+      } else if (character === "\\") {
+        escaped = true
+      } else if (character === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (character === '"') {
+      inString = true
+      result += character
+      continue
+    }
+
+    if (character === ",") {
+      let next = index + 1
+      while (next < content.length && /\s/.test(content[next])) {
+        next += 1
+      }
+      if (content[next] === "}" || content[next] === "]") {
+        continue
+      }
+    }
+
+    result += character
+  }
+
+  return result
+}
+
+function parseConfig(content) {
+  try {
+    return JSON.parse(content)
+  } catch (error) {
+    const normalized = stripTrailingCommas(content)
+    if (normalized === content) {
+      throw error
+    }
+    return JSON.parse(normalized)
+  }
+}
+
 if (fs.existsSync(configFile)) {
   const content = fs.readFileSync(configFile, "utf8")
-  try {
-    config = JSON.parse(content)
-  } catch (e) {
-    config = JSON.parse(content.replace(/,\s*([\]}])/g, "$1"))
-  }
+  config = parseConfig(content)
 }
 
 config.instructions = Array.isArray(config.instructions) ? config.instructions : []

@@ -38,6 +38,60 @@ function Ensure-Property($Object, [string]$Name, $Value) {
   }
 }
 
+function Remove-JsonTrailingCommas([string]$Content) {
+  $result = [System.Text.StringBuilder]::new($Content.Length)
+  $inString = $false
+  $escaped = $false
+
+  for ($index = 0; $index -lt $Content.Length; $index++) {
+    $character = $Content[$index]
+
+    if ($inString) {
+      [void]$result.Append($character)
+      if ($escaped) {
+        $escaped = $false
+      } elseif ($character -eq '\') {
+        $escaped = $true
+      } elseif ($character -eq '"') {
+        $inString = $false
+      }
+      continue
+    }
+
+    if ($character -eq '"') {
+      $inString = $true
+      [void]$result.Append($character)
+      continue
+    }
+
+    if ($character -eq ',') {
+      $next = $index + 1
+      while ($next -lt $Content.Length -and [char]::IsWhiteSpace($Content[$next])) {
+        $next++
+      }
+      if ($next -lt $Content.Length -and ($Content[$next] -eq '}' -or $Content[$next] -eq ']')) {
+        continue
+      }
+    }
+
+    [void]$result.Append($character)
+  }
+
+  return $result.ToString()
+}
+
+function ConvertFrom-OpenCodeJson([string]$Content) {
+  try {
+    return $Content | ConvertFrom-Json
+  } catch {
+    $normalized = Remove-JsonTrailingCommas $Content
+    if ($normalized -eq $Content) {
+      throw
+    }
+    return $normalized | ConvertFrom-Json
+  }
+}
+
 if (-not (Test-Path -LiteralPath (Join-Path $sourceOpenCode "AGENTS.md"))) {
   $archiveUrl = $env:CAVEMAN_OPENCODE_ARCHIVE_URL
   if ([string]::IsNullOrWhiteSpace($archiveUrl)) {
@@ -82,11 +136,7 @@ $agentsText | Set-Content -LiteralPath $agentsFile -Encoding UTF8
 
 if (Test-Path -LiteralPath $configFile) {
   $content = Get-Content -LiteralPath $configFile -Raw -Encoding UTF8
-  try {
-    $config = $content | ConvertFrom-Json
-  } catch {
-    $config = ($content -replace ',\s*([\]}])', '$1') | ConvertFrom-Json
-  }
+  $config = ConvertFrom-OpenCodeJson $content
 } else {
   $config = [pscustomobject]@{}
 }
